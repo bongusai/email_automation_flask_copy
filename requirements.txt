@@ -5,4 +5,4 @@ validators
 sendgrid
 python-dotenv
 imaplib2
-
+gunicorn
