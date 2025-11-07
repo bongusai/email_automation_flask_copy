@@ -1,0 +1,304 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Email Automation</title>
+<style>
+:root {
+  --accent:#d6336c;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --bg:#f7f9fb;
+  --btn-green:#16a34a;
+  --btn-blue:#2563eb;
+}
+body {
+  font-family:"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  margin:20px;
+  color:#1f2937;
+}
+.container{max-width:1100px;margin:auto}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:16px;flex-wrap:wrap;gap:8px;
+}
+h1{margin:0;font-size:22px}
+.btn{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:8px;
+  padding:8px 14px;
+  cursor:pointer;
+  font-weight:600;
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);
+  transition:all .3s;
+}
+.btn:hover{opacity:.9}
+.btn.primary{background:var(--accent);color:#fff;border:none}
+.btn.green{background:var(--btn-green);color:#fff;position:relative}
+.btn.blue{background:var(--btn-blue);color:#fff;border:none}
+.btn.green.disabled{opacity:.6;cursor:not-allowed}
+.spinner {
+  width:16px;height:16px;
+  border:2px solid #fff;border-top-color:transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  display:inline-block;
+  vertical-align:middle;
+  margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.card{
+  background:#fff;border-radius:8px;padding:16px;margin-bottom:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05)
+}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+input,textarea{
+  width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);
+  font-size:14px;box-sizing:border-box
+}
+label{font-size:13px;color:var(--muted);margin-bottom:4px;display:block}
+.log{
+  background:#0f1724;color:#d1d5db;font-family:monospace;
+  border-radius:8px;padding:8px;height:300px;overflow:auto;
+}
+.log-line{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.1)}
+.preview{
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px;
+  background:#fff;
+  line-height:1.5;
+}
+.highlight{font-weight:700}
+.color-picker{margin:8px 0}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid #eee;padding:6px;text-align:left;font-size:13px}
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:none;align-items:center;justify-content:center;z-index:100
+}
+.modal{
+  background:#fff;padding:16px;border-radius:8px;max-width:700px;width:95%;
+  box-shadow:0 4px 20px rgba(0,0,0,.2)
+}
+#sentCounter.green{color:#16a34a;font-weight:700}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Email Automation</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="newEventBtn" class="btn blue">🔄 Take a New Event</button>
+      <button id="quotaBtn" class="btn">Daily Quota</button>
+      <button id="notifBtn" class="btn">Notifications <span id="notifCount">0</span></button>
+      <button id="downloadLogBtn" class="btn">Download Log</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <h3>Upload Files</h3>
+    <div class="grid">
+      <div><label>Senders Excel:</label><input type="file" id="senders"></div>
+      <div><label>Recipients Excel:</label><input type="file" id="recipients"></div>
+    </div><br>
+    <button class="btn primary" onclick="uploadFiles()">Upload</button>
+    <div id="uploadResult" style="margin-top:6px;font-weight:600;"></div>
+  </div>
+
+  <div class="card">
+    <h3>Message Settings</h3>
+    <div class="grid">
+      <div><label>Gap seconds:</label><input id="gap" value="5"></div>
+      <div><label>Subject:</label><input id="subject" placeholder="Attendee list - {event}"></div>
+      <div><label>Event name:</label><input id="event" value="Weldex 2025"></div>
+      <div><label>Event date:</label><input id="date" value="07 - 10 Oct 2025"></div>
+      <div><label>Location:</label><input id="location" value="IEC Crocus Expo, Russia"></div>
+      <div><label>Count:</label><input id="count" value="6,869"></div>
+    </div><br>
+
+    <label>Body Template:</label>
+    <div id="templateContainer">
+      <div id="previewBox" class="preview"></div>
+      <textarea id="bodyEditor" rows="8" style="display:none"></textarea>
+      <div id="editControls" style="margin-top:8px">
+        <button class="btn" id="editBtn" onclick="toggleEdit(true)">✏️ Edit Template</button>
+      </div>
+      <div id="saveControls" style="display:none;margin-top:8px">
+        <div class="grid">
+          <div>
+            <label>Highlight Color:</label>
+            <input type="color" id="colorPicker" class="color-picker" value="#d6336c">
+          </div>
+          <div>
+            <label>Text Color:</label>
+            <input type="color" id="txtColorPicker" class="color-picker" value="#1f2937">
+          </div>
+        </div>
+        <button class="btn primary" onclick="saveTemplate()">💾 Save</button>
+        <button class="btn" onclick="resetTemplate()">♻️ Reset Default</button>
+      </div>
+    </div><br>
+
+    <button class="btn green" id="startBtn" onclick="start()">Start Sending</button>
+    <button class="btn" onclick="stop()">Stop</button>
+  </div>
+
+  <div class="card">
+    <h3>Live Log (<span id="sentCounter">0/0</span>)</h3>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<!-- Quota Modal -->
+<div class="modal-bg" id="quotaModal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3>Daily Quota</h3>
+      <button class="btn" onclick="closeQuota()">Close</button>
+    </div>
+    <table class="table"><thead><tr><th>Email</th><th>Used</th><th>Limit</th><th>Remaining</th></tr></thead><tbody id="quotaTable"></tbody></table>
+  </div>
+</div>
+
+<!-- Notifications Modal -->
+<div class="modal-bg" id="notifModal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3>Notifications</h3>
+      <div>
+        <button class="btn" onclick="clearNotifications()">Clear All</button>
+        <button class="btn" onclick="closeNotif()">Close</button>
+      </div>
+    </div>
+    <table class="table"><thead><tr><th>Time</th><th>Type</th><th>Message</th></tr></thead><tbody id="notifTable"></tbody></table>
+  </div>
+</div>
+
+<script>
+const defaultTpl=`Hi,
+
+We are pleased to inform you that the attendee {event}
+{date}
+{location}
+
+The list contains {count} pre-registered attendees with email addresses, contact numbers, and more in an Excel format.
+We do charge for our services; would you like to See What is the price?
+
+Regards,
+{sender_name}`;
+
+const bodyEditor=document.getElementById('bodyEditor');
+const previewBox=document.getElementById('previewBox');
+let highlightColor="#d6336c",textColor="#1f2937";
+
+function renderPreview(){
+  let t=bodyEditor.value;
+  const vars={'{event}':document.getElementById('event').value,'{date}':document.getElementById('date').value,'{location}':document.getElementById('location').value,'{count}':document.getElementById('count').value,'{sender_name}':'Laura'};
+  for(const[k,v]of Object.entries(vars)){t=t.replaceAll(k,`<span class="highlight" style="color:${highlightColor}">${v}</span>`);}
+  previewBox.innerHTML=`<div style="color:${textColor}">${t.replace(/\n/g,'<br>')}</div>`;
+}
+function toggleEdit(e){
+  document.getElementById('editControls').style.display=e?'none':'block';
+  document.getElementById('saveControls').style.display=e?'block':'none';
+  previewBox.style.display=e?'none':'block';
+  bodyEditor.style.display=e?'block':'none';
+}
+function saveTemplate(){
+  highlightColor=document.getElementById('colorPicker').value;
+  textColor=document.getElementById('txtColorPicker').value;
+  localStorage.setItem('template',bodyEditor.value);
+  localStorage.setItem('color',highlightColor);
+  localStorage.setItem('txtcolor',textColor);
+  toggleEdit(false);renderPreview();
+}
+function resetTemplate(){
+  bodyEditor.value=defaultTpl;
+  highlightColor="#d6336c";textColor="#1f2937";
+  document.getElementById('colorPicker').value=highlightColor;
+  document.getElementById('txtColorPicker').value=textColor;
+  renderPreview();
+}
+function initTemplate(){
+  bodyEditor.value=localStorage.getItem('template')||defaultTpl;
+  highlightColor=localStorage.getItem('color')||"#d6336c";
+  textColor=localStorage.getItem('txtcolor')||"#1f2937";
+  renderPreview();
+}
+initTemplate();
+
+// Auto update preview when inputs change
+['event','date','location','count'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',renderPreview);
+});
+
+async function uploadFiles(){
+  const s=document.getElementById('senders').files[0],r=document.getElementById('recipients').files[0];
+  if(!s||!r){alert('Select both');return;}
+  let fd1=new FormData();fd1.append('file',s);
+  let j1=await (await fetch('/upload_senders',{method:'POST',body:fd1})).json();
+  let fd2=new FormData();fd2.append('file',r);
+  let j2=await (await fetch('/upload_recipients',{method:'POST',body:fd2})).json();
+  document.getElementById('uploadResult').innerText=`Senders: ${j1.count}\nRecipients: ${j2.count}`;
+}
+
+async function start(){
+  const btn=document.getElementById('startBtn');
+  btn.innerHTML='<span class="spinner"></span>Sending...';
+  btn.classList.add('disabled');
+  const d={gap:document.getElementById('gap').value,subject:document.getElementById('subject').value,event:document.getElementById('event').value,date:document.getElementById('date').value,location:document.getElementById('location').value,count:document.getElementById('count').value,template:bodyEditor.value,color:highlightColor,txtcolor:textColor};
+  await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+  pollStatus(btn);
+}
+async function stop(){
+  await fetch('/stop',{method:'POST'});
+  const btn=document.getElementById('startBtn');
+  btn.innerHTML='Start Sending';
+  btn.classList.remove('disabled');
+}
+let polling=false;
+async function pollStatus(btn){
+  if(polling)return;polling=true;
+  const log=document.getElementById('log');
+  const counter=document.getElementById('sentCounter');
+  while(true){
+    const j=await (await fetch('/status')).json();
+    log.innerHTML='';
+    j.log.forEach(l=>{const d=document.createElement('div');d.className='log-line';d.innerText=l;log.appendChild(d);});
+    counter.innerText=`${j.sent_count}/${j.total_count}`;
+    if(j.sent_count===j.total_count && j.total_count>0){counter.classList.add('green');counter.innerText=`✔️ ${j.sent_count}/${j.total_count}`;}
+    if(!j.is_sending){btn.innerHTML='Start Sending';btn.classList.remove('disabled');break;}
+    await new Promise(r=>setTimeout(r,2000));
+  }
+  polling=false;
+}
+document.getElementById('downloadLogBtn').onclick=()=>window.location='/download_log';
+
+// Take New Event
+document.getElementById('newEventBtn').onclick=async()=>{
+  const btn=document.getElementById('newEventBtn');
+  if(!confirm("Are you sure? This will clear all logs and start fresh."))return;
+  btn.innerHTML='<span class="spinner"></span> Resetting...';
+  await fetch('/new_event',{method:'POST'});
+  btn.innerHTML='🔄 Take a New Event';
+  alert('Memory cleared. Please upload new sender and recipient files.');
+  window.location.reload();
+};
+
+/* quota & notif remain same */
+const quotaModal=document.getElementById('quotaModal');
+document.getElementById('quotaBtn').onclick=async()=>{quotaModal.style.display='flex';await refreshQuota();quotaModal._i=setInterval(refreshQuota,2000);}
+function closeQuota(){quotaModal.style.display='none';clearInterval(quotaModal._i);}
+async function refreshQuota(){let j=await (await fetch('/quota')).json();let t=document.getElementById('quotaTable');t.innerHTML='';j.forEach(r=>t.innerHTML+=`<tr><td>${r.email}</td><td>${r.used}</td><td>${r.daily_limit}</td><td>${r.remaining}</td></tr>`);}
+const notifModal=document.getElementById('notifModal');
+document.getElementById('notifBtn').onclick=async()=>{notifModal.style.display='flex';await refreshNotif();notifModal._i=setInterval(refreshNotif,2000);}
+function closeNotif(){notifModal.style.display='none';clearInterval(notifModal._i);}
+async function refreshNotif(){let j=await (await fetch('/notifications')).json();document.getElementById('notifCount').innerText=j.length;let t=document.getElementById('notifTable');t.innerHTML='';j.forEach(n=>t.innerHTML+=`<tr><td>${n.timestamp}</td><td>${n.type}</td><td>${n.message}</td></tr>`);}
+async function clearNotifications(){await fetch('/notifications/clear',{method:'POST'});await refreshNotif();}
+</script>
+</body>
+</html>
