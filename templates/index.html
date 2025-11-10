@@ -1,186 +1,144 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Email Automation</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Email Automation — Multiuser</title>
 <style>
-:root {
+:root{
   --accent:#d6336c;
   --muted:#6b7280;
   --border:#e5e7eb;
   --bg:#f7f9fb;
   --btn-green:#16a34a;
   --btn-blue:#2563eb;
+  --hover:#f3f4f6;
+  --danger:#ef4444;
+  --card-pad:14px;
 }
-body {
-  font-family:"Segoe UI",Roboto,sans-serif;
-  background:var(--bg);
-  margin:20px;
-  color:#1f2937;
-}
-.container{max-width:1100px;margin:auto}
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:16px;flex-wrap:wrap;gap:8px;
-}
-h1{margin:0;font-size:22px}
-.btn{
-  border:1px solid var(--border);
-  background:#fff;
-  border-radius:8px;
-  padding:8px 14px;
-  cursor:pointer;
-  font-weight:600;
-  box-shadow:0 1px 3px rgba(0,0,0,0.05);
-  transition:all .3s;
-}
-.btn:hover{opacity:.9}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0; padding:0; overflow-x:hidden; font-family:"Segoe UI",Roboto,sans-serif; background:var(--bg); color:#111}
+.container{max-width:1200px;margin:18px auto;padding:0 12px}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.title-area{flex:1 1 auto}
+.nav-area{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex:0 1 auto}
+h1{margin:0}
+.small{font-size:13px;color:var(--muted)}
+.btn{border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600;transition:all .12s}
+.btn:hover{filter:brightness(.98)}
 .btn.primary{background:var(--accent);color:#fff;border:none}
-.btn.green{background:var(--btn-green);color:#fff;position:relative}
+.btn.green{background:var(--btn-green);color:#fff;border:none}
 .btn.blue{background:var(--btn-blue);color:#fff;border:none}
-.btn.green.disabled{opacity:.6;cursor:not-allowed}
-.spinner {
-  width:16px;height:16px;
-  border:2px solid #fff;border-top-color:transparent;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  display:inline-block;
-  vertical-align:middle;
-  margin-right:6px;
+.btn.danger{background:var(--danger);color:#fff;border:none}
+.card{background:#fff;padding:var(--card-pad);border-radius:10px;margin-bottom:12px;box-shadow:0 6px 18px rgba(14,20,30,0.03)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.form-row{display:flex;gap:8px}
+.form-row .col{flex:1}
+label{display:block;margin-bottom:6px;font-size:13px;color:var(--muted)}
+input[type="text"],input[type="file"],textarea,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:15px}
+textarea{min-height:120px;resize:vertical}
+.log{background:#0f1724;color:#d1d5db;padding:8px;height:260px;overflow:auto;font-family:monospace;border-radius:6px}
+.log-line{padding:6px 4px;border-bottom:1px dashed rgba(255,255,255,0.04)}
+.preview{border:1px solid var(--border);border-radius:8px;background:#fff;padding:14px;min-height:260px;overflow:visible}
+.profile{width:44px;height:44px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;position:relative}
+.profile-popup{position:absolute;right:0;top:56px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 22px rgba(0,0,0,0.08);width:320px;padding:12px;display:none;z-index:60}
+.profile-popup p{margin:4px 0;font-size:14px}
+.profile-popup hr{border:none;border-top:1px solid var(--border);margin:8px 0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:100}
+.modal .panel{background:#fff;padding:16px;border-radius:10px;max-width:920px;width:95%;max-height:85vh;overflow-y:auto}
+.error{color:var(--danger);font-size:13px;margin-top:6px}
+.color-circle{width:20px;height:20px;border-radius:50%;display:inline-block;border:2px solid #fff;cursor:pointer;vertical-align:middle;margin-left:8px}
+.badge{background:var(--danger);color:#fff;padding:2px 7px;border-radius:999px;font-weight:700;font-size:12px;margin-left:6px}
+.table{width:100%;border-collapse:collapse;margin-top:8px}
+.table th,.table td{padding:10px;border-bottom:1px solid #f1f5f9;text-align:left}
+.hoverable{transition:background .12s}
+.hoverable:hover{background:var(--hover)}
+.controls-right{display:flex;gap:8px;align-items:center}
+@media(max-width:640px){
+  .nav-area{flex-wrap:wrap;justify-content:flex-end}
+  .profile-popup{right:6px;left:6px}
+  .card{padding:12px}
+  input[type="text"],textarea{font-size:14px}
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-.card{
-  background:#fff;border-radius:8px;padding:16px;margin-bottom:16px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.05)
-}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
-input,textarea{
-  width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);
-  font-size:14px;box-sizing:border-box
-}
-label{font-size:13px;color:var(--muted);margin-bottom:4px;display:block}
-.log{
-  background:#0f1724;color:#d1d5db;font-family:monospace;
-  border-radius:8px;padding:8px;height:300px;overflow:auto;
-}
-.log-line{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.1)}
-.preview{
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:12px;
-  background:#fff;
-  line-height:1.5;
-}
-.highlight{font-weight:700}
-.color-picker{margin:8px 0}
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{border-bottom:1px solid #eee;padding:6px;text-align:left;font-size:13px}
-.modal-bg{
-  position:fixed;inset:0;background:rgba(0,0,0,.5);
-  display:none;align-items:center;justify-content:center;z-index:100
-}
-.modal{
-  background:#fff;padding:16px;border-radius:8px;max-width:700px;width:95%;
-  box-shadow:0 4px 20px rgba(0,0,0,.2)
-}
-#sentCounter.green{color:#16a34a;font-weight:700}
+.current-subject{font-weight:700;color:#111}
+.clear-link{background:transparent;border:none;color:var(--muted);cursor:pointer}
 </style>
 </head>
 <body>
 <div class="container">
-  <header>
-    <h1>Email Automation</h1>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button id="newEventBtn" class="btn blue">🔄 Take a New Event</button>
-      <button id="quotaBtn" class="btn">Daily Quota</button>
-      <button id="notifBtn" class="btn">Notifications <span id="notifCount">0</span></button>
-      <button id="downloadLogBtn" class="btn">Download Log</button>
+  <div class="header-row">
+    <div class="title-area">
+      <h1>Email Automation</h1>
+      <div class="small">Multi-user • Queued events • Persistent history & notifications (7-day retention)</div>
     </div>
-  </header>
 
-  <div class="card">
-    <h3>Upload Files</h3>
-    <div class="grid">
-      <div><label>Senders Excel:</label><input type="file" id="senders"></div>
-      <div><label>Recipients Excel:</label><input type="file" id="recipients"></div>
-    </div><br>
-    <button class="btn primary" onclick="uploadFiles()">Upload</button>
-    <div id="uploadResult" style="margin-top:6px;font-weight:600;"></div>
+    <div class="nav-area">
+      <button id="addEventBtn" class="btn">+ Add Another Event</button>
+      <button id="queueBtn" class="btn">Queue Events <span id="queueBadge" class="badge" style="display:none">0</span></button>
+      <button id="historyBtn" class="btn">All History</button>
+      <button id="notifBtn" class="btn">Notifications <span id="notifBadge" class="badge" style="display:none">0</span></button>
+      <button id="quotaBtn" class="btn">Daily Quota</button>
+      <button id="downloadLogBtn" class="btn">Download Log</button>
+      <div id="profileWrapper" style="position:relative;">
+        <div id="profileArea"></div>
+        <div id="profilePopup" class="profile-popup"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+      <div style="min-width:140px">
+        <label>Gap seconds:</label>
+        <input id="gap" type="text" value="5" style="width:120px;">
+      </div>
+
+      <div style="min-width:260px">
+        <label>Upload Senders Excel:</label>
+        <input type="file" id="sendersFile">
+        <div id="sendersInfo" class="small"></div>
+      </div>
+
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+        <div class="controls-right">
+          <button id="startBtn" class="btn green">Start Sending Queue</button>
+          <button id="pauseBtn" class="btn" disabled>Pause</button>
+          <button id="resumeBtn" class="btn" style="display:none">Resume</button>
+          <button id="stopClearBtn" class="btn">Stop & Clear</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
-    <h3>Message Settings</h3>
-    <div class="grid">
-      <div><label>Gap seconds:</label><input id="gap" value="5"></div>
-      <div><label>Subject:</label><input id="subject" placeholder="Attendee list - {event}"></div>
-      <div><label>Event name:</label><input id="event" value="Weldex 2025"></div>
-      <div><label>Event date:</label><input id="date" value="07 - 10 Oct 2025"></div>
-      <div><label>Location:</label><input id="location" value="IEC Crocus Expo, Russia"></div>
-      <div><label>Count:</label><input id="count" value="6,869"></div>
-    </div><br>
-
-    <label>Body Template:</label>
-    <div id="templateContainer">
-      <div id="previewBox" class="preview"></div>
-      <textarea id="bodyEditor" rows="8" style="display:none"></textarea>
-      <div id="editControls" style="margin-top:8px">
-        <button class="btn" id="editBtn" onclick="toggleEdit(true)">✏️ Edit Template</button>
+    <h3 style="margin:0 0 10px 0;display:flex;justify-content:space-between;align-items:center">
+      <span>Template & Preview</span>
+      <div style="text-align:right">
+        <div class="small">Current sending subject:</div>
+        <div id="currentSubject" class="current-subject">—</div>
       </div>
-      <div id="saveControls" style="display:none;margin-top:8px">
-        <div class="grid">
-          <div>
-            <label>Highlight Color:</label>
-            <input type="color" id="colorPicker" class="color-picker" value="#d6336c">
-          </div>
-          <div>
-            <label>Text Color:</label>
-            <input type="color" id="txtColorPicker" class="color-picker" value="#1f2937">
+    </h3>
+
+    <div class="grid">
+      <!-- LEFT: body template -->
+      <div>
+        <label>Global Subject (shows current event subject)</label>
+        <input id="globalSubject" placeholder="Attendee list - {event}" readonly>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+          <label style="margin:0">Highlight color:</label>
+          <div id="colorCircle" class="color-circle" title="Click to choose highlight color"></div>
+          <input id="colorPicker" type="color" value="#d6336c" style="display:none;">
+          <div style="margin-left:auto">
+            <button id="editBodyBtn" class="btn">Edit</button>
+            <button id="saveBodyBtn" class="btn primary" style="display:none">Save</button>
+            <button id="defaultBodyBtn" class="btn">Default</button>
           </div>
         </div>
-        <button class="btn primary" onclick="saveTemplate()">💾 Save</button>
-        <button class="btn" onclick="resetTemplate()">♻️ Reset Default</button>
-      </div>
-    </div><br>
 
-    <button class="btn green" id="startBtn" onclick="start()">Start Sending</button>
-    <button class="btn" onclick="stop()">Stop</button>
-  </div>
-
-  <div class="card">
-    <h3>Live Log (<span id="sentCounter">0/0</span>)</h3>
-    <div class="log" id="log"></div>
-  </div>
-</div>
-
-<!-- Quota Modal -->
-<div class="modal-bg" id="quotaModal">
-  <div class="modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h3>Daily Quota (Wait for few seconds...)</h3>
-      <button class="btn" onclick="closeQuota()">Close</button>
-    </div>
-    <table class="table"><thead><tr><th>Email</th><th>Used</th><th>Limit</th><th>Remaining</th></tr></thead><tbody id="quotaTable"></tbody></table>
-  </div>
-</div>
-
-<!-- Notifications Modal -->
-<div class="modal-bg" id="notifModal">
-  <div class="modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h3>Notifications</h3>
-      <div>
-        <button class="btn" onclick="clearNotifications()">Clear All</button>
-        <button class="btn" onclick="closeNotif()">Close</button>
-      </div>
-    </div>
-    <table class="table"><thead><tr><th>Time</th><th>Type</th><th>Message</th></tr></thead><tbody id="notifTable"></tbody></table>
-  </div>
-</div>
-
-<script>
-const defaultTpl=`Hi,
+        <label style="margin-top:10px">Body Template (pitch)</label>
+        <textarea id="bodyTemplate" readonly>Hi,
 
 We are pleased to inform you that the attendee {event}
 {date}
@@ -190,115 +148,373 @@ The list contains {count} pre-registered attendees with email addresses, contact
 We do charge for our services; would you like to See What is the price?
 
 Regards,
-{sender_name}`;
+{sender_name}</textarea>
+      </div>
 
-const bodyEditor=document.getElementById('bodyEditor');
-const previewBox=document.getElementById('previewBox');
-let highlightColor="#d6336c",textColor="#1f2937";
+      <!-- RIGHT: preview -->
+      <div>
+        <label>Preview (<span id="previewLabel">Default</span>)</label>
+        <div id="preview" class="preview"></div>
+      </div>
+    </div>
+  </div>
 
-function renderPreview(){
-  let t=bodyEditor.value;
-  const vars={'{event}':document.getElementById('event').value,'{date}':document.getElementById('date').value,'{location}':document.getElementById('location').value,'{count}':document.getElementById('count').value,'{sender_name}':'Laura'};
-  for(const[k,v]of Object.entries(vars)){t=t.replaceAll(k,`<span class="highlight" style="color:${highlightColor}">${v}</span>`);}
-  previewBox.innerHTML=`<div style="color:${textColor}">${t.replace(/\n/g,'<br>')}</div>`;
-}
-function toggleEdit(e){
-  document.getElementById('editControls').style.display=e?'none':'block';
-  document.getElementById('saveControls').style.display=e?'block':'none';
-  previewBox.style.display=e?'none':'block';
-  bodyEditor.style.display=e?'block':'none';
-}
-function saveTemplate(){
-  highlightColor=document.getElementById('colorPicker').value;
-  textColor=document.getElementById('txtColorPicker').value;
-  localStorage.setItem('template',bodyEditor.value);
-  localStorage.setItem('color',highlightColor);
-  localStorage.setItem('txtcolor',textColor);
-  toggleEdit(false);renderPreview();
-}
-function resetTemplate(){
-  bodyEditor.value=defaultTpl;
-  highlightColor="#d6336c";textColor="#1f2937";
-  document.getElementById('colorPicker').value=highlightColor;
-  document.getElementById('txtColorPicker').value=textColor;
-  renderPreview();
-}
-function initTemplate(){
-  bodyEditor.value=localStorage.getItem('template')||defaultTpl;
-  highlightColor=localStorage.getItem('color')||"#d6336c";
-  textColor=localStorage.getItem('txtcolor')||"#1f2937";
-  renderPreview();
-}
-initTemplate();
+  <div class="card" style="margin-top:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h3 style="margin:0">Live Log (<span id="sentCounter">0/0</span>)</h3>
+      <div>
+        <button id="clearLogBtn" class="btn">🗑 Clear Log</button>
+      </div>
+    </div>
+    <div id="log" class="log"></div>
+  </div>
+</div>
 
-// Auto update preview when inputs change
-['event','date','location','count'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',renderPreview);
-});
+<!-- LOGIN modal -->
+<div id="loginModal" class="modal"><div class="panel"><h3>Welcome — Create Profile</h3><p class="small">Enter name & email (saved to this device).</p><label>Name</label><input id="loginName"><label style="margin-top:8px">Email</label><input id="loginEmail"><div style="margin-top:10px"><button id="saveProfileBtn" class="btn primary">Save Profile</button></div></div></div>
 
-async function uploadFiles(){
-  const s=document.getElementById('senders').files[0],r=document.getElementById('recipients').files[0];
-  if(!s||!r){alert('Select both');return;}
-  let fd1=new FormData();fd1.append('file',s);
-  let j1=await (await fetch('/upload_senders',{method:'POST',body:fd1})).json();
-  let fd2=new FormData();fd2.append('file',r);
-  let j2=await (await fetch('/upload_recipients',{method:'POST',body:fd2})).json();
-  document.getElementById('uploadResult').innerText=`Senders: ${j1.count}\nRecipients: ${j2.count}`;
-}
+<!-- Add/Edit Event Modal -->
+<div id="eventModal" class="modal"><div class="panel">
+  <h3 id="eventModalTitle">Add Event</h3>
+  <div id="eventError" class="error"></div>
 
-async function start(){
-  const btn=document.getElementById('startBtn');
-  btn.innerHTML='<span class="spinner"></span>Sending...';
-  btn.classList.add('disabled');
-  const d={gap:document.getElementById('gap').value,subject:document.getElementById('subject').value,event:document.getElementById('event').value,date:document.getElementById('date').value,location:document.getElementById('location').value,count:document.getElementById('count').value,template:bodyEditor.value,color:highlightColor,txtcolor:textColor};
-  await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
-  pollStatus(btn);
-}
-async function stop(){
-  await fetch('/stop',{method:'POST'});
-  const btn=document.getElementById('startBtn');
-  btn.innerHTML='Start Sending';
-  btn.classList.remove('disabled');
-}
-let polling=false;
-async function pollStatus(btn){
-  if(polling)return;polling=true;
-  const log=document.getElementById('log');
-  const counter=document.getElementById('sentCounter');
-  while(true){
-    const j=await (await fetch('/status')).json();
-    log.innerHTML='';
-    j.log.forEach(l=>{const d=document.createElement('div');d.className='log-line';d.innerText=l;log.appendChild(d);});
-    counter.innerText=`${j.sent_count}/${j.total_count}`;
-    if(j.sent_count===j.total_count && j.total_count>0){counter.classList.add('green');counter.innerText=`✔️ ${j.sent_count}/${j.total_count}`;}
-    if(!j.is_sending){btn.innerHTML='Start Sending';btn.classList.remove('disabled');break;}
-    await new Promise(r=>setTimeout(r,2000));
-  }
-  polling=false;
-}
-document.getElementById('downloadLogBtn').onclick=()=>window.location='/download_log';
+  <label>Subject (optional — overrides global)</label>
+  <input id="evt_subject" placeholder="Attendee list - {event}">
 
-// Take New Event
-document.getElementById('newEventBtn').onclick=async()=>{
-  const btn=document.getElementById('newEventBtn');
-  if(!confirm("Are you sure? This will clear all logs and start fresh."))return;
-  btn.innerHTML='<span class="spinner"></span> Resetting...';
-  await fetch('/new_event',{method:'POST'});
-  btn.innerHTML='🔄 Take a New Event';
-  alert('Memory cleared. Please upload new sender and recipient files.');
-  window.location.reload();
+  <div class="form-row" style="margin-top:10px">
+    <div class="col">
+      <label>Event name</label>
+      <input id="evt_name" placeholder="Weldex 2025">
+    </div>
+    <div class="col">
+      <label>Event date</label>
+      <input id="evt_date" placeholder="07 - 10 Oct 2025">
+    </div>
+  </div>
+
+  <div class="form-row" style="margin-top:10px">
+    <div class="col">
+      <label>Location</label>
+      <input id="evt_location" placeholder="IEC Crocus Expo, Krasnogorsk, Russia">
+    </div>
+    <div class="col">
+      <label>Count</label>
+      <input id="evt_count" placeholder="6,869">
+    </div>
+  </div>
+
+  <label style="margin-top:10px">Upload recipients Excel</label>
+  <input type="file" id="evt_recipients_file">
+  <div id="evt_recipients_info" class="small"></div>
+
+  <div style="margin-top:12px;display:flex;gap:8px;">
+    <button id="saveEventBtn" class="btn primary">Save Event</button>
+    <button id="cancelEventBtn" class="btn">Cancel</button>
+  </div>
+</div></div>
+
+<!-- Queue modal -->
+<div id="queueModal" class="modal"><div class="panel"><h3>Queued Events</h3><div id="queueList"></div><div style="margin-top:8px"><button id="closeQueueBtn" class="btn">Close</button></div></div></div>
+
+<!-- History modal -->
+<div id="historyModal" class="modal"><div class="panel"><h3>History <button id="clearHistoryBtn" class="btn" style="margin-left:12px">Delete All</button></h3><div id="historyList"></div><div style="margin-top:8px"><button id="closeHistoryBtn" class="btn">Close</button></div></div></div>
+
+<!-- Notifications modal -->
+<div id="notifModal" class="modal"><div class="panel"><h3>Notifications <button id="clearNotifBtn" class="btn" style="margin-left:12px">Clear All</button></h3><div id="notifList" style="margin-top:8px"></div><div style="margin-top:8px"><button id="closeNotifBtn" class="btn">Close</button></div></div></div>
+
+<!-- Quota modal -->
+<div id="quotaModal" class="modal"><div class="panel"><h3>Daily Quota</h3><div id="quotaContent" style="margin-top:8px;"></div><div style="margin-top:12px"><button id="closeQuotaBtn" class="btn">Close</button></div></div></div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+function showModal(m){ m.style.display='flex'; }
+function hideModal(m){ m.style.display='none'; }
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------- state ---------- */
+let uploadedRecipients = { filename:'', count:0 };
+let editingEventId = null;
+let polling = false;
+
+/* ---------- UI elements ---------- */
+const addEventBtn = $('addEventBtn'), queueBtn = $('queueBtn'), queueBadge = $('queueBadge');
+const startBtn = $('startBtn'), pauseBtn = $('pauseBtn'), resumeBtn = $('resumeBtn'), stopClearBtn = $('stopClearBtn');
+const notifBtn = $('notifBtn'), notifBadge = $('notifBadge');
+const globalSubject = $('globalSubject'), currentSubject = $('currentSubject');
+const bodyTemplate = $('bodyTemplate'), editBodyBtn = $('editBodyBtn'), saveBodyBtn = $('saveBodyBtn'), defaultBodyBtn = $('defaultBodyBtn');
+const colorCircle = $('colorCircle'), colorPicker = $('colorPicker');
+const clearLogBtn = $('clearLogBtn');
+
+/* ---------- profile handling ---------- */
+async function checkProfile(){
+  const res = await fetch('/get_profile'); const j = await res.json();
+  if(!j.ok){ showModal($('loginModal')); return; }
+  renderProfile(j.profile);
+  await loadPitch();
+  refreshQueuePreview();
+  updateQueueBadge();
+  loadNotifications();
+}
+function renderProfile(p){
+  const pa = $('profileArea'); pa.innerHTML = '';
+  const div = document.createElement('div'); div.className = 'profile'; div.innerText = (p.name||p.email)[0].toUpperCase();
+  div.onclick = (ev)=> {
+    ev.stopPropagation();
+    const popup = $('profilePopup');
+    popup.innerHTML = `<p><strong>${escapeHtml(p.name)}</strong></p><p>${escapeHtml(p.email)}</p><hr>
+      <button id="deleteProfileBtn" class="btn" style="background:#ff4d4f;color:#fff;border:none">Delete Profile</button>`;
+    popup.style.display = popup.style.display==='block'?'none':'block';
+    $('deleteProfileBtn').onclick = async ()=>{ if(!confirm('Delete profile and all events?')) return; await fetch('/delete_profile',{method:'POST'}); popup.style.display='none'; location.reload(); }
+  };
+  document.body.onclick = ()=> { $('profilePopup').style.display='none'; }
+  pa.appendChild(div);
+}
+$('saveProfileBtn').onclick = async () => {
+  const name = $('loginName').value.trim(), email = $('loginEmail').value.trim().toLowerCase();
+  if(!name || !email) return alert('Please fill both fields');
+  const r = await fetch('/login_user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email})});
+  const j = await r.json();
+  if(j.ok){ hideModal($('loginModal')); renderProfile(j.profile); loadPitch(); refreshQueuePreview(); updateQueueBadge(); loadNotifications(); } else alert('Error saving profile');
 };
 
-/* quota & notif remain same */
-const quotaModal=document.getElementById('quotaModal');
-document.getElementById('quotaBtn').onclick=async()=>{quotaModal.style.display='flex';await refreshQuota();quotaModal._i=setInterval(refreshQuota,2000);}
-function closeQuota(){quotaModal.style.display='none';clearInterval(quotaModal._i);}
-async function refreshQuota(){let j=await (await fetch('/quota')).json();let t=document.getElementById('quotaTable');t.innerHTML='';j.forEach(r=>t.innerHTML+=`<tr><td>${r.email}</td><td>${r.used}</td><td>${r.daily_limit}</td><td>${r.remaining}</td></tr>`);}
-const notifModal=document.getElementById('notifModal');
-document.getElementById('notifBtn').onclick=async()=>{notifModal.style.display='flex';await refreshNotif();notifModal._i=setInterval(refreshNotif,2000);}
-function closeNotif(){notifModal.style.display='none';clearInterval(notifModal._i);}
-async function refreshNotif(){let j=await (await fetch('/notifications')).json();document.getElementById('notifCount').innerText=j.length;let t=document.getElementById('notifTable');t.innerHTML='';j.forEach(n=>t.innerHTML+=`<tr><td>${n.timestamp}</td><td>${n.type}</td><td>${n.message}</td></tr>`);}
-async function clearNotifications(){await fetch('/notifications/clear',{method:'POST'});await refreshNotif();}
+/* ---------- color/pitch ---------- */
+colorCircle.onclick = ()=> colorPicker.click();
+colorPicker.oninput = e => { colorCircle.style.background = e.target.value; renderPreview(); }
+colorCircle.style.background = colorPicker.value;
+
+editBodyBtn.onclick = ()=> { bodyTemplate.removeAttribute('readonly'); editBodyBtn.style.display='none'; saveBodyBtn.style.display='inline-block'; }
+saveBodyBtn.onclick = async ()=> {
+  bodyTemplate.setAttribute('readonly', true); editBodyBtn.style.display='inline-block'; saveBodyBtn.style.display='none';
+  const r = await fetch('/save_pitch',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({pitch: bodyTemplate.value})});
+  const j = await r.json();
+  if(!j.ok) alert('Save failed'); else { alert('Template saved'); refreshQueuePreview(); }
+};
+defaultBodyBtn.onclick = async ()=> {
+  const def = `Hi,\n\nWe are pleased to inform you that the attendee {event}\n{date}\n{location}\n\nThe list contains {count} pre-registered attendees with email addresses, contact numbers, and more in an Excel format.\nWe do charge for our services; would you like to See What is the price?\n\nRegards,\n{sender_name}`;
+  bodyTemplate.value = def; renderPreview();
+  await fetch('/save_pitch',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({pitch: def})});
+};
+async function loadPitch(){ const r=await fetch('/get_pitch'); const j=await r.json(); if(j.ok && j.pitch) bodyTemplate.value=j.pitch; renderPreview(); }
+
+/* ---------- preview rendering ---------- */
+const previewDefault = { event:'Weldex 2025', date:'07 - 10 Oct 2025', location:'IEC Crocus Expo, Krasnogorsk, Russia', count:'6,869', sender_name:'Laura' };
+function renderPreviewFor(data){
+  const highlight = colorPicker.value;
+  let t = bodyTemplate.value || '';
+  const map = { '{event}': data.event||previewDefault.event, '{date}': data.date||previewDefault.date, '{location}': data.location||previewDefault.location, '{count}': data.count||previewDefault.count, '{sender_name}': data.sender_name||previewDefault.sender_name, '{first_name}': data.first_name||'' };
+  for(const k in map) t = t.split(k).join(`<strong style="color:${highlight}">${escapeHtml(map[k])}</strong>`);
+  $('preview').innerHTML = `<div style="color:#222;line-height:1.45">${t.replace(/\n/g,'<br>')}</div>`;
+}
+async function refreshQueuePreview(){
+  const r = await fetch('/list_events'); const j=await r.json();
+  if(!j.ok){ renderPreviewFor(previewDefault); $('previewLabel').innerText='Default'; return; }
+  const evs = j.events || [];
+  if(evs.length>0){ const top = evs[0]; $('previewLabel').innerText = top.event; renderPreviewFor(top); globalSubject.value = top.subject || ''; } else { $('previewLabel').innerText='Default'; renderPreviewFor(previewDefault); globalSubject.value = ''; }
+}
+function renderPreview(){ refreshQueuePreview(); }
+
+/* ---------- senders upload ---------- */
+$('sendersFile').addEventListener('change', async (e)=> {
+  const f = e.target.files[0]; if(!f) return;
+  const fd = new FormData(); fd.append('file', f);
+  const res = await fetch('/upload_senders', { method:'POST', body: fd });
+  const j = await res.json();
+  if(j.ok) { $('sendersInfo').innerText = `${j.count} senders loaded`; } else alert('Senders upload error: '+(j.error||''));
+});
+
+/* ---------- add event modal ---------- */
+addEventBtn.onclick = ()=> {
+  editingEventId = null; $('eventError').innerText=''; $('eventModalTitle').innerText='Add Event';
+  $('evt_name').value=''; $('evt_date').value=''; $('evt_location').value=''; $('evt_count').value=''; $('evt_subject').value=''; $('evt_recipients_info').innerText=''; uploadedRecipients={filename:'',count:0};
+  showModal($('eventModal'));
+};
+$('cancelEventBtn').onclick = ()=> hideModal($('eventModal'));
+
+$('evt_recipients_file').addEventListener('change', async (e)=> {
+  const f = e.target.files[0]; if(!f) return;
+  const fd = new FormData(); fd.append('file', f);
+  const r = await fetch('/upload_recipients_file', { method:'POST', body: fd });
+  const j = await r.json();
+  if(j.ok){ uploadedRecipients.filename = j.filename; uploadedRecipients.count = j.count; $('evt_recipients_info').innerText = `${j.filename} (${j.count})`; } else alert('Recipients upload error');
+});
+
+$('saveEventBtn').onclick = async ()=> {
+  const name = $('evt_name').value.trim(), date = $('evt_date').value.trim(), loc = $('evt_location').value.trim(), count = $('evt_count').value.trim(), subject = $('evt_subject').value.trim();
+  if(!name || !date || !loc || !uploadedRecipients.filename){ $('eventError').innerText='❌ Please fill all required fields and upload recipients file.'; return; }
+  const payload = { event:name, date:date, location:loc, count:count, subject: subject, recipients_filename: uploadedRecipients.filename, recipients_count: uploadedRecipients.count };
+  const r = await fetch('/save_event',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify(payload)});
+  const j = await r.json();
+  if(j.ok){ hideModal($('eventModal')); alert('Event saved'); refreshQueuePreview(); updateQueueBadge(); } else alert('Error saving event');
+};
+
+/* ---------- queue modal ---------- */
+queueBtn.onclick = async ()=> {
+  const r = await fetch('/list_events'); const j = await r.json(); if(!j.ok) return alert('Error');
+  const list = $('queueList'); list.innerHTML = '';
+  j.events.forEach(ev=>{
+    const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.padding='8px 0'; row.className='hoverable';
+    row.innerHTML = `<div><strong>${escapeHtml(ev.event)}</strong> — ${ev.recipients_count} recipients</div>`;
+    const controls = document.createElement('div');
+    const editBtn = document.createElement('button'); editBtn.className='btn'; editBtn.innerText='Edit';
+    editBtn.onclick = ()=> {
+      editingEventId = ev.id; $('eventModalTitle').innerText='Edit Event';
+      $('evt_name').value = ev.event; $('evt_date').value = ev.date; $('evt_location').value = ev.location; $('evt_count').value = ev.count; $('evt_subject').value = ev.subject || '';
+      uploadedRecipients = { filename: ev.recipients_filename, count: ev.recipients_count }; $('evt_recipients_info').innerText = uploadedRecipients.filename ? `${uploadedRecipients.filename} (${uploadedRecipients.count})` : '';
+      showModal($('eventModal'));
+    };
+    const delBtn = document.createElement('button'); delBtn.className='btn'; delBtn.innerText='Delete';
+    delBtn.onclick = async ()=> { if(!confirm('Delete this event?')) return; await fetch('/delete_event',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({id: ev.id})}); queueBtn.click(); refreshQueuePreview(); updateQueueBadge(); }
+    controls.appendChild(editBtn); controls.appendChild(delBtn); row.appendChild(controls); list.appendChild(row);
+  });
+  showModal($('queueModal'));
+};
+$('closeQueueBtn').onclick = ()=> hideModal($('queueModal'));
+
+/* ---------- history modal ---------- */
+$('historyBtn').onclick = async ()=> {
+  const r = await fetch('/history'); const j = await r.json(); if(!j.ok) return alert('Error');
+  const list = $('historyList'); list.innerHTML = '';
+  j.history.forEach((h, idx)=>{
+    const d = document.createElement('div'); d.style.display='flex'; d.style.justifyContent='space-between'; d.style.padding='8px 0'; d.className='hoverable';
+    d.innerHTML = `<div>${escapeHtml(h.event)} — ${h.recipients} recipients — <strong>Sent Successfully</strong> — ${new Date(h.time).toLocaleString()}</div>`;
+    const controls = document.createElement('div');
+    const del = document.createElement('button'); del.className='btn'; del.innerText='Delete'; del.onclick = async ()=>{ if(!confirm('Delete this history entry?')) return; await fetch('/delete_history',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({index: idx})}); $('historyBtn').click(); };
+    controls.appendChild(del); d.appendChild(controls); list.appendChild(d);
+  });
+  showModal($('historyModal'));
+};
+$('closeHistoryBtn').onclick = ()=> hideModal($('historyModal'));
+$('clearHistoryBtn').onclick = async ()=> { if(!confirm('Delete all history?')) return; await fetch('/clear_history',{method:'POST'}); $('historyBtn').click(); };
+
+/* ---------- notifications modal ---------- */
+notifBtn.onclick = async ()=> { showModal($('notifModal')); loadNotifications(true); }
+$('closeNotifBtn').onclick = ()=> hideModal($('notifModal'));
+$('clearNotifBtn').onclick = async ()=> { if(!confirm('Clear all notifications?')) return; await fetch('/notifications/clear',{method:'POST'}); await fetch('/clear_user_notifications',{method:'POST'}); loadNotifications(true); updateNotifBadge(); };
+
+/* fetch and render notifications (optionally render modal list) */
+async function loadNotifications(renderModal=false){
+  const r = await fetch('/notifications'); const j = await r.json(); if(!j.ok) return;
+  const listAll = j.notifications || [];
+  const count = listAll.length;
+  if(count>0){ notifBadge.style.display='inline-block'; notifBadge.innerText = count; } else notifBadge.style.display='none';
+  if(renderModal){
+    const box = $('notifList'); box.innerHTML = '';
+    if(listAll.length===0) { box.innerHTML = '<div class="small">No notifications</div>'; return; }
+    listAll.slice().reverse().forEach((n, idx)=> {
+      const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.padding='8px 0';
+      row.className='hoverable';
+      row.innerHTML = `<div><strong>[${escapeHtml(n.type.toUpperCase())}]</strong> ${escapeHtml(n.message)} <div class="small">${new Date(n.timestamp).toLocaleString()}</div></div>`;
+      const del = document.createElement('button'); del.className='btn'; del.innerText='Delete'; del.onclick = async ()=>{ await fetch('/notifications/delete',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({timestamp: n.timestamp})}); loadNotifications(true); };
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+}
+
+/* ---------- quota ---------- */
+$('quotaBtn').onclick = async ()=> {
+  if(!$('sendersInfo').innerText){ alert('Upload sender file first to fetch quota'); return; }
+  showModal($('quotaModal')); $('quotaContent').innerText = 'Checking...';
+  const r = await fetch('/quota'); const j = await r.json();
+  if(r.status!==200){ $('quotaContent').innerText = JSON.stringify(j); return; }
+  let html = '<table class="table"><thead><tr><th>Sender</th><th>Used</th><th>Limit</th><th>Remaining</th></tr></thead><tbody>';
+  j.forEach(x=> html += `<tr><td>${escapeHtml(x.email)}</td><td>${x.used}</td><td>${x.daily_limit||x.limit||500}</td><td>${x.remaining}</td></tr>`);
+  html += '</tbody></table>'; $('quotaContent').innerHTML = html;
+};
+$('closeQuotaBtn').onclick = ()=> hideModal($('quotaModal'));
+
+/* ---------- download log ---------- */
+$('downloadLogBtn').onclick = ()=> window.location='/download_log';
+
+/* ---------- UI: queue badge ---------- */
+async function updateQueueBadge(){
+  const r = await fetch('/list_events'); const j=await r.json(); if(!j.ok) { queueBadge.style.display='none'; return; }
+  const n = (j.events||[]).length;
+  if(n>0){ queueBadge.style.display='inline-block'; queueBadge.innerText = n; } else queueBadge.style.display='none';
+}
+
+/* ---------- START / PAUSE / RESUME / STOP & CLEAR ---------- */
+function setSendingUI(isSending){ if(isSending){ startBtn.innerHTML = 'Sending...'; startBtn.disabled=true; pauseBtn.disabled=false; stopClearBtn.disabled=false; } else { startBtn.innerHTML='Start Sending Queue'; startBtn.disabled=false; pauseBtn.disabled=true; resumeBtn.style.display='none'; pauseBtn.style.display='inline-block'; } }
+
+startBtn.onclick = async ()=> {
+  const gap = $('gap').value||'5'; const globalSub = $('globalSubject').value||''; const color = colorPicker.value;
+  const r = await fetch('/start_send_queue',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({gap, subject: globalSub, color})});
+  const j = await r.json();
+  if(!j.ok) return alert(j.error||'Error starting'); setSendingUI(true); pollStatus(); updateQueueBadge();
+};
+
+pauseBtn.onclick = async ()=> {
+  const r = await fetch('/pause',{method:'POST'}); const j = await r.json();
+  if(!j.ok) return alert(j.error||'Pause failed'); pauseBtn.style.display='none'; resumeBtn.style.display='inline-block';
+};
+
+resumeBtn.onclick = async ()=> {
+  const r = await fetch('/resume',{method:'POST'}); const j=await r.json();
+  if(!j.ok) return alert(j.error||'Resume failed'); resumeBtn.style.display='none'; pauseBtn.style.display='inline-block'; setSendingUI(true); pollStatus();
+};
+
+stopClearBtn.onclick = async ()=> {
+  if(!confirm('Stop sending and remove current event from the queue?')) return;
+  const r = await fetch('/stop_clear',{method:'POST'}); const j=await r.json();
+  if(!j.ok) return alert(j.error||'Stop & Clear failed'); setSendingUI(true); pollStatus(); updateQueueBadge();
+};
+
+/* ---------- Clear log (UI + backend file) ---------- */
+clearLogBtn.onclick = async ()=> {
+  if(!confirm('Clear live log and delete send_log.csv permanently?')) return;
+  const r = await fetch('/clear_log', {method:'POST'});
+  const j = await r.json();
+  if(!j.ok) return alert('Clear log failed');
+  $('log').innerHTML = '';
+  alert('Log cleared');
+};
+
+/* ---------- pollStatus: updates logs, preview, counters, badges ---------- */
+async function pollStatus(){
+  if(polling) return; polling = true;
+  const logDiv = $('log'), sentCounter = $('sentCounter');
+  while(true){
+    try{
+      const r = await fetch('/status'); const j = await r.json();
+      logDiv.innerHTML = '';
+      j.log.slice(-400).forEach(l=> { const el=document.createElement('div'); el.className='log-line'; el.innerText = l; logDiv.appendChild(el); });
+      if(j.current_event){
+        sentCounter.innerText = `${j.current_event} (${j.sent_count}/${j.current_total})`;
+        $('previewLabel').innerText = j.current_event;
+        currentSubject.innerText = j.current_subject || '—';
+        // preview reflect current event
+        const evs = (await (await fetch('/list_events')).json()).events || [];
+        let curEv = evs.find(e => e.id === j.current_event_id) || evs[0] || null;
+        if(curEv) renderPreviewFor(curEv); else renderPreviewFor(previewDefault);
+      } else {
+        sentCounter.innerText = `0/${j.queue_total_recipients||0}`;
+        currentSubject.innerText = '—';
+        refreshQueuePreview();
+      }
+      setSendingUI(j.is_sending);
+      updateNotifBadge();
+      updateQueueBadge();
+      if(!j.is_sending) break;
+      await new Promise(r=>setTimeout(r,1500));
+    } catch(e){
+      console.error('poll error', e); await new Promise(r=>setTimeout(r,2000));
+    }
+  }
+  polling = false;
+}
+
+/* ---------- notifications badge helper ---------- */
+async function updateNotifBadge(){
+  const r = await fetch('/notifications'); const j = await r.json();
+  if(!j.ok){ notifBadge.style.display='none'; return; }
+  const n = (j.notifications||[]).length;
+  if(n>0){ notifBadge.style.display='inline-block'; notifBadge.innerText = n; } else notifBadge.style.display='none';
+}
+
+/* ---------- init ---------- */
+async function init(){ await checkProfile(); await updateQueueBadge(); await updateNotifBadge(); }
+init();
 </script>
 </body>
 </html>

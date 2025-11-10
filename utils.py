@@ -1,3 +1,4 @@
+# utils.py
 import pandas as pd
 import validators
 
@@ -14,25 +15,20 @@ def read_senders(path):
     elif 'api_key' not in df.columns:
         df['api_key'] = None
 
-    # daily_limit optional
-    if 'daily_limit' not in df.columns:
-        df['daily_limit'] = None
-
     if 'name' not in df.columns:
         df['name'] = ''
 
     senders = df.to_dict(orient='records')
 
     for s in senders:
-        # Clean name for encoding issues
         if 'name' in s:
             s['name'] = str(s['name']).replace('\xa0', ' ')
         email = str(s.get('email'))
         if not validators.email(email):
             raise ValueError(f"Invalid sender email: {email}")
-        # warn if no api key
         if not s.get('api_key'):
             print(f"⚠️ Warning: Sender '{email}' has no App Password/API key. It may fail to send.")
+
     return senders
 
 def read_recipients(path):
@@ -45,9 +41,6 @@ def read_recipients(path):
             df = df.rename(columns={cols[0]: 'email'})
         else:
             raise ValueError("recipient_emails.xlsx must contain an 'email' column")
-
-    if 'first_name' not in df.columns:
-        df['first_name'] = ''
 
     recipients = df.to_dict(orient='records')
 

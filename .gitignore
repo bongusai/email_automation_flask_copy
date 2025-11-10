@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+uploads/*.xlsx
+uploads/*.xls
+uploads/users.json
+.env
